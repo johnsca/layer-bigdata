@@ -1,3 +1,5 @@
+from subprocess import check_call
+
 from charms.reactive import when_not
 from charms.reactive import set_state
 from charmhelpers.core import hookenv
@@ -8,7 +10,8 @@ import jujuresources
 @when_not('bootstrapped')
 def bootstrap():
     hookenv.status_set('maintenance', 'Installing base resources')
-    apt_install(['python-pip'])
+    apt_install(['python-pip', 'git'])  # git used for testing unreleased version of libs
+    check_call(['pip', 'install', '-U', 'pip'])  # 1.5.1 (trusty) pip fails on --download with git repos
     mirror_url = hookenv.config('resources_mirror')
     if not jujuresources.fetch(mirror_url=mirror_url):
         missing = jujuresources.invalid()
